@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
-import { Col, Row, Typography, Card, Avatar} from 'antd';
+import { Col, Row, Typography, Card, Avatar, Button, Menu} from 'antd';
 import { useDispatch } from 'react-redux';
 import { getVideos } from '../../../_actions/video_action';
 import { serverURL } from '../../Config/Config';  
 import moment from 'moment';
+import { CategoryList } from '../../../enum/CategoryEnum';
 
 const { Title } = Typography;
 const { Meta } = Card;
@@ -13,25 +14,48 @@ function LandingPage(props){
     const dispatch = useDispatch();
     
     const [ Video, setVideo ] = useState([]);
-    
-    
+    const [ CategoryVideo, setCategoryVideo] = useState([]);
+    const [ MenuTarget, setMenuTarget ] = useState("0");
+
     useEffect(()=>{
         dispatch(getVideos()).then(res => {
             if(res.payload.success){
                 setVideo(res.payload.videos);
+                setCategoryVideo(res.payload.videos);
             } else {
                 alert('비디오 가져오기를 실패했습니다.');
             }
         })
 
     },[])
-
-    const renderCards = Video.map((video, index)=>{
+    const onClickCategoryHandler = (category, videoList) => {
+        if(Number(category.value) > Number(CategoryList[0].value)){
+            let list = videoList.filter((video) => {
+                return Number(video.category) === Number(category.value);
+            })
+            setCategoryVideo(list);
+        } else {
+            setCategoryVideo(Video);
+        }
+    }
+    const onClickMenuHandler = (event) => {
+        setMenuTarget(event.key);
+        
+    }
+    const menu = CategoryList.map((category, index) => {
+        return ( 
+            <Menu.Item key={index} onClick={()=>onClickCategoryHandler(category, Video)} >
+                <Button shape="round">{category.label}</Button>
+            </Menu.Item>
+        ) 
+    })
+    const renderCards = CategoryVideo.map((video, index)=>{
         let minutes = Math.floor(video.duration / 60);
         let seconds = Math.floor(video.duration - minutes * 60);
         let videoWriterImage = video.writer.image === undefined ? '/images/undefined-user.jpg' : video.writer.image ;
+        
         return (
-            <Col lg={6} md={8} xs={24} key={index}>
+            <Col lg={6} md={8} xs={24} key={index} style={{margin:'10px 0'}}>
                 <a href={`/video/${video._id}`}>
                     <div style={{position : 'relative'}}>
                         <img style={{width:'100%'}} src={`${serverURL}/${video.thumbnail}`} alt={video.fileName} />
@@ -59,7 +83,11 @@ function LandingPage(props){
     
     return (
         <div style={{width:'85%', margin:'3rem auto'}}>
-            <Title level={2}>Recomended</Title>
+            <Title level={2}>
+                <Menu mode="horizontal" onClick={onClickMenuHandler} selectedKeys={MenuTarget}>
+                    {menu}
+               </Menu>
+            </Title>
             <hr />
             <Row gutter={[32,16]}>
                 {renderCards}

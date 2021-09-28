@@ -1,10 +1,9 @@
-import React, {useState} from 'react';
-import { Typography, Button, Form, message, Input, Spin, Alert } from 'antd';
+import React, {useEffect, useState} from 'react';
+import { Typography, Button, Form, message, Input, Spin } from 'antd';
 import Dropzone from 'react-dropzone';
 import { PlusOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { thumbnailVideo, uploadVideo, uploadVideoFiles } from '../../../_actions/video_action';
-import { CategoryList } from '../../../enum/CategoryEnum';
+import { deleteVideo, getVideo, modifyVideo, thumbnailVideo, uploadVideoFiles } from '../../../_actions/video_action';
 
 
 const { TextArea } = Input;
@@ -14,12 +13,20 @@ const PrivateOption = [
     {value:0, label:"Private"},
     {value:1, label:"Public"}
 ]
-const CategoryOption = CategoryList;
+const CategoryOption = [
+    {value:0, label:"Firm & Animation"},
+    {value:1, label:"Autos & Vehicles"},
+    {value:2, label:"Music"},
+    {value:3, label:"Pets & Animals"},
+]
 
-function VideoUploadPage(props){
+function VideoModifyPage(props){
 
     const dispatch = useDispatch();
 
+    const videoId = props.match.params.videoId
+
+    const [ Video, setVideo ] = useState("");
     const [ VideoTitle, setVideoTitle ] = useState("");
     const [ Description, setDescription ] = useState("");
     const [ Private, setPrivate ] = useState(0);
@@ -29,6 +36,31 @@ function VideoUploadPage(props){
     const [ ThumbnailPath, setThumbnailPath ] = useState("");
     const [ Loading, setLoading ] = useState(false);
     const [ LoadingSubmit, setLoadingSubmit ] = useState(false);
+
+    useEffect(()=>{
+        let body = {
+            videoId
+        }
+        let userId = '';
+        dispatch(getVideo(body)).then(res => {
+            if(res.payload.success){
+                let { thumbnail, title, description, category, privacy } = res.payload.video;
+                setVideo(res.payload.video);
+                setThumbnailPath(thumbnail);
+                setVideoTitle(title);
+                setCategory(category);
+                setDescription(description);
+                setPrivate(privacy);
+                console.log(res.payload.video);
+                userId = res.payload.video.writer._id;
+            }
+            console.log(userId);
+            console.log(localStorage.getItem('userId'));
+            if(!userId || userId !== localStorage.getItem('userId')){
+                props.history.push('/');
+            }
+        })
+    },[])
 
     const user = useSelector(state => state.user);
     const onTitleHandler = (event) => {
@@ -47,6 +79,7 @@ function VideoUploadPage(props){
         event.preventDefault();
         setLoadingSubmit(true);
         const body = {
+            _id : videoId,
             writer : user.userData._id,
             title : VideoTitle,
             description : Description,
@@ -56,7 +89,7 @@ function VideoUploadPage(props){
             duration : Duration,
             thumbnail : ThumbnailPath,
         }
-        dispatch(uploadVideo(body)).then(res => {
+        dispatch(modifyVideo(body)).then(res => {
             if(res.payload.success){
                 message.success('성공적으로 업로드 하였습니다.');
                 setTimeout(()=>{
@@ -65,6 +98,7 @@ function VideoUploadPage(props){
                 }, 3000);    
             } else {
                 alert('비디오 업로드에 실패하였습니다.');
+                setLoadingSubmit(false);
             }
         })
 
@@ -94,12 +128,29 @@ function VideoUploadPage(props){
             }
         })
     }
-
+    const onClickDelete = () => {
+        let confirm = window.confirm("삭제하시겠습니까?");
+        let body = {
+            videoId
+        }
+        if(confirm){
+            dispatch(deleteVideo(body)).then(res => {
+                if(res.payload.success){
+                    message.success('삭제되었습니다.');
+                    setTimeout(()=>{
+                        props.history.push('/');
+                    },2000);
+                } else {
+                    message.error('실패하였습니다.');
+                }
+            })
+        }
+    }
 
     return (
         <div style={{ maxWidth :'700px', margin:'2rem auto'}}>
             <div style={{textAlign :'center', marginBottom:'2rem'}}>
-                <Title level={2}>Upload Video</Title>
+                <Title level={2}>Modify Video</Title>
             </div>
             <Form onSubmit={onSubmit}>
                 <div style={{display:'flex', justifyContent:'space-between'}}>
@@ -159,8 +210,9 @@ function VideoUploadPage(props){
                 disabled={LoadingSubmit ? "disabled" : ""}>
                     Submit
                 </Button>
+                <Button style={{marginLeft:'1rem'}} onClick={onClickDelete} size="large">Delete</Button>
             </Form>
         </div>
     );
 }
-export default VideoUploadPage;
+export default VideoModifyPage;

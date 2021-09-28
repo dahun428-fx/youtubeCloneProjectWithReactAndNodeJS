@@ -62,7 +62,7 @@ function Subscribe(props){
     }
     return (
         <button
-        style={{backgroundColor:`${Subscribed ? '#AAAAAA' : '#CC0000'}`, borderRadius : '4px', color:'white', padding:'10px 16px', 
+        style={{border:'1px solid white',backgroundColor:`${Subscribed ? '#AAAAAA' : '#CC0000'}`, borderRadius : '4px', color:'white', padding:'10px 16px', 
         fontWeight: '500', fontSize:'1rem', textTransform:'uppercase'}}
         onClick={onClickHandler}
         ><span style={{marginRight:'0.5rem'}}>{SubscribeNumber}</span>{ Subscribed ? 'Subscribed' : 'Subscribe'}</button>

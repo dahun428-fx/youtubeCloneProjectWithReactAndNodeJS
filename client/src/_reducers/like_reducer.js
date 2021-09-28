@@ -1,4 +1,4 @@
-import { DOWN_DISLIKE, DOWN_LIKES, GET_DISLIKES, GET_DISLIKES_BY_USER, GET_LIKES, GET_LIKES_BY_USER, SAVE_DISLIKE, SAVE_LIKES, UP_DISLIKE, UP_LIKES } from "../_actions/types";
+import { DOWN_DISLIKE, DOWN_LIKES, GET_DISLIKES, GET_DISLIKES_BY_USER, GET_LIKES, GET_LIKES_BY_USER, UP_DISLIKE, UP_LIKES } from "../_actions/types";
 
 export default function reducer ( state = {}, action ){
     switch( action.type ){

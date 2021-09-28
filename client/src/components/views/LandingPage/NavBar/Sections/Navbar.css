@@ -9,7 +9,7 @@
 }
 
 .menu__logo {
-  width: 150px;
+  width: 200px;
   float: left;
 }
 
@@ -37,11 +37,11 @@
 }
 
 .menu__container .menu_left {
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .menu__container .menu_rigth {
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 .menu__mobile-button {

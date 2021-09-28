@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { Video } = require('../models/Video');
+const { User } = require('../models/User')
 const { auth } = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
@@ -47,6 +48,23 @@ router.post('/getVideo', (req, res) => {
         }
     })
 })
+router.post('/getMyVideos', (req, res) => {
+    Video.find()
+    .populate('writer')
+    .exec((err, videos) => {
+        if(err){
+            return res.status(400).send(err);
+        } else {
+            let result = videos.filter((video) => {
+                return String(video.writer._id) === String(req.body.userId)
+            })
+            return res.status(200).json({
+                success : true,
+                videos : result
+            })
+        }
+    })
+})
 router.get('/getVideos', (req, res) => {
     Video.find().populate('writer').exec((err, videos) => {
         if(err){
@@ -59,7 +77,6 @@ router.get('/getVideos', (req, res) => {
         }
     })
 })
-
 router.post("/uploadfiles", (req, res) => {
 
     upload(req, res, err => {
@@ -70,6 +87,32 @@ router.post("/uploadfiles", (req, res) => {
         }
     })
 
+})
+router.post('/deleteVideo', (req, res) => {
+    Video.findOneAndDelete({
+        _id : req.body.videoId
+    }).exec((err, video) => {
+        if(err){
+            return res.status(400).send(err);
+        } else {
+            return res.status(200).json({success : true});
+        }
+    })
+})
+router.post('/modifyVideo', (req, res) => {
+    Video.findOneAndUpdate({
+        _id : req.body._id
+    }, req.body)
+    .exec((err, video) => {
+        if(err){
+            return res.status(400).send(err);
+        } else {
+            return res.status(200).json({
+                success : true,
+                video
+            })
+        }
+    })
 })
 router.post('/uploadVideo', (req, res) => {
     const video = new Video(req.body);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { DislikeFilled, DislikeOutlined, LikeFilled, LikeOutlined } from '@ant-design/icons';
-import { message, Tooltip } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
+import { Tooltip } from 'antd';
+import { useDispatch} from 'react-redux';
 import { downDisLike, downLike, getDisLikes, getDisLikesByUser, getLikes, getLikesByUser, upDisLike, upLike } from '../../../../_actions/like_action';
 
 function LikeDisLike(props){
